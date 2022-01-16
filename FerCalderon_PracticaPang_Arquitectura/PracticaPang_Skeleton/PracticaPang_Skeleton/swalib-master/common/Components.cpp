@@ -174,12 +174,82 @@ void CMP_Collider::RecibirMsg(Message* _msgType)
 }
 #pragma endregion
 
-
-
 #pragma region CMP_Render
 void CMP_Render::SetGfxSprite(const GLuint& _gfxSprite)
 {
 	m_gfx = _gfxSprite;
 }
 
+#pragma endregion
+
+
+#pragma region CMP_Shooter
+
+void CMP_Shooter::Slot(const float& _elapsed)
+{
+	// Chequear si ha pasado el tiempo entre disparos
+	if (m_TimeFireSpawn >= m_TimeFireSpawn_MAX)//)m_fTimeUntilNextAttack == 0.f)
+	{
+	//	// Comprobar si se ha pulsado alguna tecla asignada al disparo
+	//	int auxFireDirection = 0;
+	//	if (CInputManager::GetInstance().IsKeyPressed(KEYBOARD_H))
+	//	{
+	//		auxFireDirection = -1;
+	//		//std::cout << "Left FIRE!\n";
+	//	}
+	//	else if (CInputManager::GetInstance().IsKeyPressed(KEYBOARD_K))
+	//	{
+	//		auxFireDirection = 1;
+	//		//std::cout << "RIGHT FIRE!\n";
+	//	}
+	//	// En caso de detectar input, spawnear bala
+	//	if (auxFireDirection != 0)
+	//	{
+	//		SpawnBullet(auxFireDirection);
+	//		// Restablecer fireRate
+	//		m_TimeFireSpawn = 0;
+	//	}
+	//}
+	//else
+	//{
+	//	//Temporizador FireRate
+	//	m_TimeFireSpawn += _elapsed;
+	//	if (m_TimeFireSpawn > m_TimeFireSpawn_MAX)
+	//	{
+	//		m_TimeFireSpawn = m_TimeFireSpawn_MAX;
+	//	}
+	}
+
+
+}
+
+void CMP_Shooter::SpawnBullet(const int& movDir)
+{
+
+	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
+	{
+		if (!currentEntity->IsActive())
+		{
+			if (currentEntity->HasTag(Entity::ETagEntity::Bullet))
+			{
+				//Pido una bala disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
+				std::cout << "FIRE!\n";
+
+				vec2 auxFirePoint(0, 0);
+
+				auxFirePoint.x = m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().x + movDir;
+				currentEntity->FindComponent<CMP_Transform>()->SetPos(auxFirePoint);
+
+				/*vec2 auxVelInit(m_CmpOwner->FindComponent<CMP_Transform>()->GetVelInit());
+				currentEntity->FindComponent<CMP_Transform>()->SetVel(auxVelInit);
+
+				currentEntity->FindComponent<CMP_Transform>()->SetMoveDir(movDir);
+				(movDir > 0) ? currentEntity->FindComponent<CMP_Render>()->SetSymbol('>') : currentEntity->FindComponent<CMP_Render>()->SetSymbol('<');*/
+				currentEntity->ActivateEntity();
+				break;
+			}
+		}
+	}
+	//auxBullet = nullptr;
+}
 #pragma endregion

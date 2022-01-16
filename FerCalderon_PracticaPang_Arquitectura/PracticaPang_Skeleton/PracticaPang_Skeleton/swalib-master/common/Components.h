@@ -78,3 +78,23 @@ public:
 	virtual void RecibirMsg(Message* _msgType) override {};
 
 };
+
+
+class CMP_Shooter : public Component
+{
+public:
+	CMP_Shooter() {}
+	virtual ~CMP_Shooter() {}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override;
+	virtual void RecibirMsg(Message* _msgType) override {};
+
+
+private:
+	float m_TimeFireSpawn_MAX = 0.3f;
+	float m_TimeFireSpawn = m_TimeFireSpawn_MAX;
+public:
+	void SpawnBullet(const int& movDir);
+};

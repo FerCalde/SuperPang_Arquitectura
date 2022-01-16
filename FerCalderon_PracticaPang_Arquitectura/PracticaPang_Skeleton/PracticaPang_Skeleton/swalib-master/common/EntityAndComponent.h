@@ -30,7 +30,7 @@ private:
 	std::vector<Component*> m_ComponentList;
 
 public:
-	Entity() { }
+	Entity() { SetTag(ETagEntity::Invalid); }
 	~Entity();
 
 	void SetID(size_t _ID) { id = _ID; }
@@ -51,4 +51,35 @@ public:
 		}
 		return NULL;
 	}
+
+
+
+
+	void SetActive(bool _isActive) { isActive = _isActive; }
+	void ActivateEntity() {
+		/*vec2 auxVelInit = FindComponent<CMP_Transform>()->GetVelInit();
+		FindComponent<CMP_Transform>()->SetVelInit(auxVelInit);*/
+
+		isActive = true;
+	}
+	void DesactivateEntity() { isActive = false; }
+	bool IsActive() { return isActive; }
+
+
+protected:
+	bool isActive = false;
+public:
+	enum class ETagEntity
+	{
+		Invalid = -1,
+		Player, Enemy, Bullet
+	};
+
+	ETagEntity GetTag() const { return m_eTag; }
+	bool HasTag(ETagEntity _eTag) const { return m_eTag == _eTag; }
+	void SetTag(const ETagEntity& _eTag) { m_eTag = _eTag; }
+	ETagEntity m_eTagIgnore;
+private:
+	ETagEntity m_eTag;
+
 };
