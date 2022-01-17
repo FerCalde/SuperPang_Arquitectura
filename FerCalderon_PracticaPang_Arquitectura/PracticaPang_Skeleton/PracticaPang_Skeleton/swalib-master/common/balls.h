@@ -54,18 +54,33 @@ public:
 		SetTag(ETagEntity::Player);
 		SetTagIgnore(ETagEntity::Bullet);
 		
+		AddComponent(new CMP_InputController);
 		AddComponent(new CMP_Collider);
 		AddComponent(new CMP_DamageMaker);
-		AddComponent(new CMP_LifePlayer);
+		//AddComponent(new CMP_LifePlayer);
 		AddComponent(new CMP_Render);
 
-		//AddComponent(new CMP_InputController); TA ROTO :(
-		//AddComponent(new CMP_Shooter);
+		AddComponent(new CMP_SpawnerEntity);
 	}
 
 	virtual ~Player() {};
 
 };
 
+class GameObject;
+class Bullet : public GameObject
+{
+public:
+	Bullet()
+	{
+		SetTag(ETagEntity::Bullet);
+		SetTagIgnore(ETagEntity::Player);
 
+		AddComponent(new CMP_Collider);
+		AddComponent(new CMP_DamageMaker);
+		AddComponent(new CMP_LifeBullet);
+		AddComponent(new CMP_Render);
+
+	}
+};
 

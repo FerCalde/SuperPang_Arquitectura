@@ -44,7 +44,8 @@ void RenderEngine::RenderSlot(float _fps, float _elapsed, float _currentTime)
 			CORE_RenderCenteredSprite(vec2(i * 128.f + 64.f, j * 128.f + 64.f), vec2(128.f, 128.f), instanceLogicManager->GetTexBK());
 		}
 	}
-
+	//CORE_RenderCenteredSprite(vec2(SCR_WIDTH*0.5f, SCR_HEIGHT*0.5f), vec2(SCR_WIDTH*0.9f, SCR_HEIGHT*0.9f), instanceLogicManager->GetTexBK2());
+	CORE_RenderCenteredSprite(vec2(SCR_WIDTH*0.5f, SCR_HEIGHT*0.5f), vec2(SCR_WIDTH, SCR_HEIGHT), instanceLogicManager->GetTexBK2());
 	// Render m_entitiesList
 	for (unsigned int i = 0; i < instanceLogicManager->m_entitiesList.size(); i++) {
 

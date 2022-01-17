@@ -15,19 +15,20 @@ void LogicManager::InitLogic()
 	Entity* auxNewEntity = nullptr;
 
 
-
+#pragma region Create_GameEntities
+#pragma region Create_Player
 	auxNewEntity = new Player();
 	auxNewEntity->SetID(instanceLogicManager->id);
 
 
-	vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(0.0, SCR_HEIGHT));
-	vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
+	vec2 auxPos(SCR_WIDTH*0.5f,  20);
+	vec2 auxVel(100,0);
 	float auxRadius(16.f);
 
 	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
 
-	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(50.f);
+	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(25.f);
 	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texPlayer);
 
 
@@ -36,9 +37,40 @@ void LogicManager::InitLogic()
 	auxNewEntity->ActivateEntity();
 	instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
 	instanceLogicManager->id++;
+	auxNewEntity = nullptr;
+#pragma endregion
+
+#pragma region Create_Bullets
+	for (unsigned int i = 0; i < NUM_BULLETS; i++)
+	{
+	auxNewEntity = new Bullet();
+	vec2 auxPos(0,0);
+	vec2 auxVel(0, MAX_BULLET_SPEED);
+	float auxRadius(16.f);
 
 
-	for (unsigned int i = 0; i < NUM_BALLS-1 ; i++)
+	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
+	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
+	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(16.f);
+
+	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texBullet);
+
+	auxNewEntity->SetID(instanceLogicManager->id);
+
+
+	auxNewEntity->DesactivateEntity();
+
+	instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
+	instanceLogicManager->id++;
+
+	auxNewEntity = nullptr;
+
+	auxNewEntity = nullptr;
+	}
+#pragma endregion
+
+#pragma region Create_Balls
+	for (unsigned int i = 0; i < NUM_BALLS ; i++)
 	{
 		auxNewEntity = new Ball();
 
@@ -50,7 +82,6 @@ void LogicManager::InitLogic()
 		//auxNewEntity->SendMsg();
 		auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 		auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
-
 		auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(16.f);
 
 		auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texsmallball);
@@ -62,13 +93,16 @@ void LogicManager::InitLogic()
 
 		instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
 		instanceLogicManager->id++;
-		
+		auxNewEntity = nullptr;
 
 	}
 
 
 
 	auxNewEntity = nullptr;
+
+#pragma endregion
+#pragma endregion
 }
 
 void LogicManager::ShutdownLogic()
@@ -88,8 +122,10 @@ void LogicManager::ShutdownLogic()
 void LogicManager::LoadTextures()
 {
 	texbkg = CORE_LoadPNG("../../data/circle-bkg-128.png", true);
+	texbkg2 = CORE_LoadPNG("../../data/backgroundMap.png", true);
 	texsmallball = CORE_LoadPNG("../../data/tyrian_ball.png", false);
 	texPlayer = CORE_LoadPNG("../../data/Player.png", false);
+	texBullet = CORE_LoadPNG("../../data/ball128.png", false);
 }
 
 void LogicManager::ShutdownTextures()

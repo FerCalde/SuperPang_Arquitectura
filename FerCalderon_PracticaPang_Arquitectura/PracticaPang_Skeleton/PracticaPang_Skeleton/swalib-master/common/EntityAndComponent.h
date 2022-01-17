@@ -32,6 +32,8 @@ public:
 	void ActivateCMP() { isActiveCMP = true; }
 	void DesactivateCMP() { isActiveCMP = false; }
 	void FlipActivateCMP() { isActiveCMP = !isActiveCMP; }
+
+
 private:
 	bool isActiveCMP = true;
 	

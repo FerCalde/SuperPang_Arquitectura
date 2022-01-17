@@ -77,8 +77,6 @@ public:
 		bool GetCanDamage(){ return canDamage; }
 };
 
-
-
 class EntCollisionMsg : public CollisionMsg
 {
 private:
@@ -94,8 +92,6 @@ public:
 	// GETTER
 	float GetInvertChangeSpeed() { return invertSpeed; }
 };
-
-
 
 class LimitWorldCollMsg : public CollisionMsg
 {
@@ -113,7 +109,6 @@ public:
 #pragma endregion
 
 
-
 class DamageMakeMsg : public Message
 {
 	
@@ -127,6 +122,23 @@ private:
 
 };
 
+
+class OnActiveEntityMsg : public Message
+{
+
+public:
+	OnActiveEntityMsg(){}
+	
+
+};
+
+class FireMsg : public Message
+{
+
+public:
+	FireMsg(){}
+
+};
 
 class ActiveStateCMPMsg : public Message //Mensaje que se envia para activar/desactivarCMP
 {

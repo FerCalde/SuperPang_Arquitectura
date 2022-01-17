@@ -1,5 +1,6 @@
 #include "Components.h"
 
+#include "InputManager.h"
 #include "LogicManager.h"
 #include "core.h"
 #include "sys.h"
@@ -15,6 +16,7 @@ CMP_Transform::~CMP_Transform()
 	delete ptrNewPosMsg;
 	ptrNewPosMsg = nullptr;
 }
+
 
 void CMP_Transform::Slot(const float& _elapsed)
 {
@@ -48,7 +50,8 @@ void CMP_Transform::RecibirMsg(Message* _msgType)
 			SetMoveDir(auxMoveDirMsg->GetNewMoveDir());
 		}
 	}
-	//MSG ACTIVE/DESACTIVE CMP
+	
+
 }
 #pragma endregion
 
@@ -143,15 +146,15 @@ void CMP_Collider::RecibirMsg(Message* _msgType)
 				delete auxEntColMsg;
 				auxEntColMsg = nullptr;
 			}
-			else
-			{
-				NewPosMsg* auxPosMsg = new NewPosMsg(GetPos());
-				m_CmpOwner->SendMsg(auxPosMsg);
+			//else
+			//{
+			//	//NewPosMsg* auxPosMsg = new NewPosMsg(GetPos());
+			//	//m_CmpOwner->SendMsg(auxPosMsg);
 
-				//Optimizacion
-				delete auxPosMsg;
-				auxPosMsg = nullptr;
-			}
+			//	////Optimizacion
+			//	//delete auxPosMsg;
+			//	//auxPosMsg = nullptr;
+			//}
 		}
 
 		EntCollisionMsg* auxEntColMsg = dynamic_cast<EntCollisionMsg*>(_msgType);
@@ -205,17 +208,30 @@ void CMP_Render::SetGfxSprite(const GLuint& _gfxSprite)
 
 void CMP_InputController::Slot(const float& _elapsed)
 {
-	if (IsActive())
-	{
-		InputMovement();
-	}
+	InputMovement();
+	InputFire();
+}
+
+CMP_InputController::CMP_InputController()
+{
+	ptrNewMoveDirMsg = new NewMoveDirMsg(0);
+	ptrFireMsg = new FireMsg();
+}
+
+CMP_InputController::~CMP_InputController()
+{
+	delete ptrNewMoveDirMsg;
+	ptrNewMoveDirMsg = nullptr;
+
+	delete ptrFireMsg;
+	ptrFireMsg = nullptr;
 }
 
 void CMP_InputController::InputMovement()
 {
-	if (CInputManager::GetInstance().IsKeyPressed(KEYBOARD_A))
+	if (CInputManager::GetInstance().PressedMoveLeft())
 	{
-		if (m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().x > 0)
+		if (m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().x > (0 + 5))
 		{
 			ptrNewMoveDirMsg->SetNewMoveDir(-1);
 		}
@@ -224,9 +240,9 @@ void CMP_InputController::InputMovement()
 			ptrNewMoveDirMsg->SetNewMoveDir(0);
 		}
 	}
-	else if (CInputManager::GetInstance().IsKeyPressed(KEYBOARD_D))
+	else if (CInputManager::GetInstance().PressedMoveRight())
 	{
-		if (m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().x < SCR_WIDTH)
+		if (m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().x < (SCR_WIDTH - 5))
 		{
 			ptrNewMoveDirMsg->SetNewMoveDir(1);
 
@@ -245,36 +261,49 @@ void CMP_InputController::InputMovement()
 
 }
 
+void CMP_InputController::InputFire()
+{
+	if (CInputManager::GetInstance().PressedFire())
+	{
+		m_CmpOwner->SendMsg(ptrFireMsg);
+	}
+
+}
+
+
 #pragma endregion
 
-#pragma region CMP_Shooter
+#pragma region CMP_SpawnerEntity
 
-void CMP_Shooter::Slot(const float& _elapsed)
+void CMP_SpawnerEntity::Slot(const float& _elapsed)
 {
 	// Chequear si ha pasado el tiempo entre disparos
 	if (m_TimeFireSpawn >= m_TimeFireSpawn_MAX)//)m_fTimeUntilNextAttack == 0.f)
 	{
 
-		for (auto& entityEnabledNot : LogicManager::GetInstance()->m_entitiesList)
+		/*for (auto& entityNotEnabled : LogicManager::GetInstance()->m_entitiesList)
 		{
-			if (entityEnabledNot->HasTag(Entity::ETagEntity::Enemy))
+			if (entityNotEnabled->HasTag(Entity::ETagEntity::Enemy))
 			{
 
-				if (entityEnabledNot->IsActive())
+				if (entityNotEnabled->IsActive())
 				{
-					entityEnabledNot->DesactivateEntity();
+					entityNotEnabled->DesactivateEntity();
 				}
-				else if (!entityEnabledNot->IsActive())
+				else if (!entityNotEnabled->IsActive())
 				{
-					entityEnabledNot->ActivateEntity();
+					entityNotEnabled->ActivateEntity();
 				}
+
+
+
 			}
 
-		}
+		}*/
+
 
 		// Restablecer fireRate
 		m_TimeFireSpawn = 0;
-
 
 
 		//// Comprobar si se ha pulsado alguna tecla asignada al disparo
@@ -299,10 +328,12 @@ void CMP_Shooter::Slot(const float& _elapsed)
 	}
 	else
 	{
+
 		//Temporizador FireRate
 		m_TimeFireSpawn += _elapsed;
 		if (m_TimeFireSpawn > m_TimeFireSpawn_MAX)
 		{
+			canSpawn = true;
 			m_TimeFireSpawn = m_TimeFireSpawn_MAX;
 		}
 	}
@@ -310,7 +341,27 @@ void CMP_Shooter::Slot(const float& _elapsed)
 
 }
 
-void CMP_Shooter::SpawnBullet(const int& movDir)
+void CMP_SpawnerEntity::RecibirMsg(Message* _msgType)
+{
+	/*COMPORTAMIENTO PARA DISPARO DEL PLAYER*/
+	if (canSpawn)
+	{
+
+		FireMsg* auxFireMsg = dynamic_cast<FireMsg*>(_msgType);
+		if (auxFireMsg)
+		{
+			SpawnEntity(Entity::ETagEntity::Bullet);
+			canSpawn = false;
+			// Restablecer fireRate
+			m_TimeFireSpawn = 0;
+		}
+
+		auxFireMsg = nullptr;
+	}
+	/*COMPORTAMIENTO PARA DISPARO DEL PLAYER*/
+}
+
+void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
 {
 	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
 	{
@@ -321,7 +372,7 @@ void CMP_Shooter::SpawnBullet(const int& movDir)
 				//Pido una bala disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
 				std::cout << "FIRE!\n";
 
-				vec2 auxFirePoint(currentEntity->FindComponent<CMP_Transform>()->GetPos().x, 0);
+				vec2 auxFirePoint(currentEntity->FindComponent<CMP_Transform>()->GetPos().x, currentEntity->FindComponent<CMP_Transform>()->GetPos().y + 15.f /*Offset superior*/);
 
 				auxFirePoint.y = m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().y + movDir;
 
@@ -343,6 +394,90 @@ void CMP_Shooter::SpawnBullet(const int& movDir)
 	}
 	//auxBullet = nullptr;
 }
+
+void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
+{
+
+	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
+	{
+		if (!currentEntity->IsActive())
+		{
+			if (currentEntity->HasTag(_entitySpawnTag))
+			{
+				//Pido un Entity disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
+				std::cout << "SPAWN!\n";
+
+				ptrPosSpawn = new vec2(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
+				//Mensaje para setear posicion y velocidad del Objeto Spawneado
+
+				ptrNewPosActiveMsg->SetNewPos(*ptrPosSpawn);
+
+
+				//Mensaje para Activar el GO
+				currentEntity->SendMsg(onActiveEntMsg);
+
+				delete ptrPosSpawn;
+				ptrPosSpawn = nullptr;
+
+				/*for (auto& entityNotEnabled : LogicManager::GetInstance()->m_entitiesList)
+				{
+					if (entityNotEnabled->HasTag(Entity::ETagEntity::Enemy))
+					{
+						if (entityNotEnabled->IsActive())
+						{
+							entityNotEnabled->DesactivateEntity();
+						}
+						else if (!entityNotEnabled->IsActive())
+						{
+							entityNotEnabled->ActivateEntity();
+						}
+
+
+
+					}
+
+				}*/
+			}
+
+		}
+
+	}
+}
+
+
+//void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
+//{
+//	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
+//	{
+//		if (!currentEntity->IsActive())
+//		{
+//			if (currentEntity->HasTag(Entity::ETagEntity::Bullet))
+//			{
+//				//Pido una bala disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
+//				std::cout << "FIRE!\n";
+//
+//				vec2 auxFirePoint(currentEntity->FindComponent<CMP_Transform>()->GetPos().x, 0);
+//
+//				auxFirePoint.y = m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().y + movDir;
+//
+//				NewPosMsg* auxPosMsg = new NewPosMsg(auxFirePoint);
+//				currentEntity->SendMsg(auxPosMsg);
+//
+//
+//				////currentEntity->FindComponent<CMP_Transform>()->SetPos(auxFirePoint);
+//
+//				/*vec2 auxVelInit(m_CmpOwner->FindComponent<CMP_Transform>()->GetVelInit());
+//				currentEntity->FindComponent<CMP_Transform>()->SetVel(auxVelInit);
+//
+//				currentEntity->FindComponent<CMP_Transform>()->SetMoveDir(movDir);
+//				(movDir > 0) ? currentEntity->FindComponent<CMP_Render>()->SetSymbol('>') : currentEntity->FindComponent<CMP_Render>()->SetSymbol('<');*/
+//				currentEntity->ActivateEntity();
+//				break;
+//			}
+//		}
+//	}
+//	//auxBullet = nullptr;
+//}
 #pragma endregion
 
 #pragma region CMP_LifeBase
@@ -366,6 +501,12 @@ void CMP_LifeBase::RecibirMsg(Message* _msgType)
 
 		auxDamageMsg = nullptr;
 	}
+	
+	OnActiveEntityMsg* auxOnActiveEntMsg = dynamic_cast<OnActiveEntityMsg*>(_msgType);
+	if (auxOnActiveEntMsg)
+	{
+		RefillLifes();
+	}
 
 }
 
@@ -374,7 +515,7 @@ void CMP_LifeBase::SetLife(const int& _life)
 	m_currentLife = _life;
 }
 
-void CMP_LifeBase::OnActivateGO()
+void CMP_LifeBase::RefillLifes()
 {
 	m_currentLife = m_lifeMax;
 }

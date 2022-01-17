@@ -6,7 +6,8 @@
 #pragma endregion
 #include "vector2d.h"
 #include "stdafx.h"
-#include "InputManager.h"
+
+
 
 
 class CMP_Transform : public Component
@@ -32,10 +33,14 @@ public:
 	vec2& GetVel() { return m_vel; }
 
 	void UpdatePosition(const float& _elapsed) { m_pos += m_vel * _elapsed * GetMoveDir(); }
+	
+
 
 	// Interfaz
 	virtual void Slot(const float& _elapsed) override;
 	virtual void RecibirMsg(Message* _msgType) override;
+
+
 
 };
 
@@ -68,6 +73,7 @@ public:
 
 class CMP_Render : public Component
 {
+
 private:
 	GLuint m_gfx = 0;
 
@@ -88,47 +94,63 @@ class CMP_InputController :public Component
 {
 private:
 	NewMoveDirMsg* ptrNewMoveDirMsg;
+	FireMsg* ptrFireMsg;
 
 public:
-	CMP_InputController() {
-		ptrNewMoveDirMsg = new NewMoveDirMsg(m_CmpOwner->FindComponent<CMP_Transform>()->GetMoveDir());
-	}
-	virtual ~CMP_InputController() {}
+	CMP_InputController();
+	virtual ~CMP_InputController();
+
 
 	void InputMovement();
+
+	void InputFire();
 
 	// Interfaz
 	virtual void Slot(const float& _elapsed) override;
 	virtual void RecibirMsg(Message* _msgType) override {};
 };
 
-class CMP_Shooter : public Component
+class CMP_SpawnerEntity : public Component
 {
 public:
-	CMP_Shooter() {}
-	virtual ~CMP_Shooter() {}
+	CMP_SpawnerEntity()
+	{
+		onActiveEntMsg = new OnActiveEntityMsg();
+		ptrNewPosActiveMsg = new NewPosMsg();
+	}
+	virtual ~CMP_SpawnerEntity()
+	{
+		delete onActiveEntMsg;
+		onActiveEntMsg = nullptr;
+	}
 
 
 	// Interfaz
 	virtual void Slot(const float& _elapsed) override;
-	virtual void RecibirMsg(Message* _msgType) override {};
+	virtual void RecibirMsg(Message* _msgType) override;
 
 
 private:
 	float m_TimeFireSpawn_MAX = 1.f;
 	//float m_TimeFireSpawn_MAX = 0.3f;
 	float m_TimeFireSpawn = 0;
+	vec2* ptrPosSpawn = nullptr;
+	bool canSpawn = true;
+
+	OnActiveEntityMsg* onActiveEntMsg = nullptr;
+	NewPosMsg* ptrNewPosActiveMsg = nullptr;
+
 public:
 	void SpawnBullet(const int& movDir);
+	void SpawnEntity(Entity::ETagEntity _entitySpawn);
 };
-
 
 class CMP_DamageMaker : public Component
 {
 public:
 	CMP_DamageMaker(const int& _hitDamage = 1);
-	
-	virtual ~CMP_DamageMaker() 
+
+	virtual ~CMP_DamageMaker()
 	{
 		delete ptrNewDamageMakeMsg;
 		ptrNewDamageMakeMsg = nullptr;
@@ -144,20 +166,20 @@ private:
 	int m_hitDamage = 1;
 	DamageMakeMsg* ptrNewDamageMakeMsg;
 
-public :
+public:
 	void MakeDamage(Entity* _otherEntity);
-	
 
-	int GetHitDamage(){ return m_hitDamage; }
+
+	int GetHitDamage() { return m_hitDamage; }
 	void SetHitDamage(const int& _hitDamage = 1) { m_hitDamage = _hitDamage; }
 };
 
-
+#pragma region  class_CMP_Life System
 
 class CMP_LifeBase : public Component
 {
 public:
-	CMP_LifeBase() { OnActivateGO(); }
+	CMP_LifeBase() { }
 	virtual ~CMP_LifeBase() {}
 
 
@@ -174,17 +196,17 @@ public:
 	int GetLife() { return m_currentLife; }
 	void SetLife(const int& _life);
 
-	void OnActivateGO(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
+	void RefillLifes(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
 
 	void TakeDamage(const int& _damage = 1); //Por defecto quita 1, se puede modificar si se quiere un juego con vida en base a 100 o quitar dos vidas (algun power up)por ejemplo.
-	
+
 	//Interfaz de la vida
 	virtual void IsDead() = 0;
 };
 
 class CMP_LifePlayer :public CMP_LifeBase
 {
-public :
+public:
 	CMP_LifePlayer() { }
 	virtual ~CMP_LifePlayer() {}
 
@@ -194,10 +216,10 @@ public :
 	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
 
 	//Propia de Life
-	virtual void IsDead() { m_CmpOwner->DesactivateEntity();
-	//GAME OVER O.o
-
-
+	virtual void IsDead()
+	{
+		m_CmpOwner->DesactivateEntity();
+		//GAME OVER O.o
 	}
 
 };
@@ -216,3 +238,22 @@ public:
 	//Propia de Life
 	virtual void IsDead() { m_CmpOwner->DesactivateEntity(); }
 };
+
+class CMP_LifeBullet : public CMP_LifeBase
+{
+public:
+	CMP_LifeBullet() { SetLife(1); }
+	virtual ~CMP_LifeBullet() {}
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override {  }
+	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
+
+	//Propia de Life
+	virtual void IsDead()
+	{
+		m_CmpOwner->DesactivateEntity();
+	}
+};
+
+#pragma endregion
