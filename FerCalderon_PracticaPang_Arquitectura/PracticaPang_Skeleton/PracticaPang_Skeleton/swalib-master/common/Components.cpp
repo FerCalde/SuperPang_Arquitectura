@@ -18,30 +18,37 @@ CMP_Transform::~CMP_Transform()
 
 void CMP_Transform::Slot(const float& _elapsed)
 {
-	UpdatePosition(_elapsed);
-	ptrNewPosMsg->SetNewPos(GetPos());
-	m_CmpOwner->SendMsg(ptrNewPosMsg);
+	if (IsActive())
+	{
+		UpdatePosition(_elapsed);
+		ptrNewPosMsg->SetNewPos(GetPos());
+		m_CmpOwner->SendMsg(ptrNewPosMsg);
+	}
 }
 
 void CMP_Transform::RecibirMsg(Message* _msgType)
 {
-	NewPosMsg* auxPosMsg = dynamic_cast<NewPosMsg*>(_msgType);
-	if (auxPosMsg)
+	if (IsActive())
 	{
-		SetPos(auxPosMsg->GetNewPos());
-	}
+		NewPosMsg* auxPosMsg = dynamic_cast<NewPosMsg*>(_msgType);
+		if (auxPosMsg)
+		{
+			SetPos(auxPosMsg->GetNewPos());
+		}
 
-	NewVelMsg* auxVelMsg = dynamic_cast<NewVelMsg*>(_msgType);
-	if (auxVelMsg)
-	{
-		SetVel(auxVelMsg->GetNewVel());
-	}
+		NewVelMsg* auxVelMsg = dynamic_cast<NewVelMsg*>(_msgType);
+		if (auxVelMsg)
+		{
+			SetVel(auxVelMsg->GetNewVel());
+		}
 
-	NewMoveDirMsg* auxMoveDirMsg = dynamic_cast<NewMoveDirMsg*>(_msgType);
-	if (auxMoveDirMsg)
-	{
-		SetMoveDir(auxMoveDirMsg->GetNewMoveDir());
+		NewMoveDirMsg* auxMoveDirMsg = dynamic_cast<NewMoveDirMsg*>(_msgType);
+		if (auxMoveDirMsg)
+		{
+			SetMoveDir(auxMoveDirMsg->GetNewMoveDir());
+		}
 	}
+	//MSG ACTIVE/DESACTIVE CMP
 }
 #pragma endregion
 
@@ -75,9 +82,13 @@ bool CMP_Collider::IsColliding(Entity* _otherEntity)
 
 		if (this->m_CmpOwner != _otherEntity)
 		{
-			if (vlen2(GetPos() - instanceLogicManager->m_entitiesList[_otherEntity->GetID()]->FindComponent<CMP_Transform>()->GetPos()) <= dist)
+			if (!_otherEntity->HasTag(m_CmpOwner->GetIgnoreTag()))
 			{
-				return true;
+
+				if (vlen2(GetPos() - instanceLogicManager->m_entitiesList[_otherEntity->GetID()]->FindComponent<CMP_Transform>()->GetPos()) <= dist)
+				{
+					return true;
+				}
 			}
 		}
 	}
@@ -88,85 +99,97 @@ bool CMP_Collider::IsColliding(Entity* _otherEntity)
 
 void CMP_Collider::Slot(const float& _elapsed)
 {
-
-	for (auto& _otherEntity : LogicManager::GetInstance()->m_entitiesList)
+	if (IsActive())
 	{
-		if (IsColliding(_otherEntity))
+		for (auto& _otherEntity : LogicManager::GetInstance()->m_entitiesList)
 		{
-			ptrCollisionMsg->SetCollision(true);
-			ptrCollisionMsg->SetIndex(_otherEntity->GetID());
+			if (IsColliding(_otherEntity))
+			{
+				ptrCollisionMsg->SetCollision(true);
+				ptrCollisionMsg->SetIndex(_otherEntity->GetID());
 
-			m_CmpOwner->SendMsg(ptrCollisionMsg);
-			break;
+				m_CmpOwner->SendMsg(ptrCollisionMsg);
+
+				//HACER DAÑO A LA ENTIDAD
+
+
+				break;
+			}
 		}
-	}
 
-	m_CmpOwner->SendMsg(ptrLimitCollisionMsg);
+		m_CmpOwner->SendMsg(ptrLimitCollisionMsg);
+	}
 }
 
 void CMP_Collider::RecibirMsg(Message* _msgType)
 {
-	CollisionMsg* collisionMsg = dynamic_cast<CollisionMsg*>(_msgType);
-	if (collisionMsg)
+	if (IsActive())
 	{
-		if (collisionMsg->GetCollision())
+
+
+		CollisionMsg* collisionMsg = dynamic_cast<CollisionMsg*>(_msgType);
+		if (collisionMsg)
 		{
+			if (collisionMsg->GetCollision())
+			{
 
-			EntCollisionMsg* auxEntColMsg = new EntCollisionMsg();
-			m_CmpOwner->SendMsg(auxEntColMsg);
+				EntCollisionMsg* auxEntColMsg = new EntCollisionMsg();
+				m_CmpOwner->SendMsg(auxEntColMsg);
 
-			//Optimizacion
-			delete auxEntColMsg;
-			auxEntColMsg = nullptr;
+				//Optimizacion
+				delete auxEntColMsg;
+				auxEntColMsg = nullptr;
+			}
+			else
+			{
+				NewPosMsg* auxPosMsg = new NewPosMsg(GetPos());
+				m_CmpOwner->SendMsg(auxPosMsg);
+
+				//Optimizacion
+				delete auxPosMsg;
+				auxPosMsg = nullptr;
+			}
 		}
-		else
+
+		EntCollisionMsg* auxEntColMsg = dynamic_cast<EntCollisionMsg*>(_msgType);
+		if (auxEntColMsg)
 		{
-			NewPosMsg* auxPosMsg = new NewPosMsg(GetPos());
-			m_CmpOwner->SendMsg(auxPosMsg);
-
-			//Optimizacion
-			delete auxPosMsg;
-			auxPosMsg = nullptr;
-		}
-	}
-
-	EntCollisionMsg* auxEntColMsg = dynamic_cast<EntCollisionMsg*>(_msgType);
-	if (auxEntColMsg)
-	{
-		NewVelMsg* auxVelMsg = new NewVelMsg(GetVel() * auxEntColMsg->GetInvertChangeSpeed());
-		m_CmpOwner->SendMsg(auxVelMsg);
-
-		//Optimizacion
-		delete auxVelMsg;
-		auxVelMsg = nullptr;
-	}
-
-	LimitWorldCollMsg* auxLimitCollMsg = dynamic_cast<LimitWorldCollMsg*>(_msgType);
-	if (auxLimitCollMsg)
-	{
-		if ((GetPos().x > auxLimitCollMsg->GetLimitWidth()) || (GetPos().x < 0))
-		{
-			NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x * -1.0f, GetVel().y));
+			NewVelMsg* auxVelMsg = new NewVelMsg(GetVel() * auxEntColMsg->GetInvertChangeSpeed());
 			m_CmpOwner->SendMsg(auxVelMsg);
 
 			//Optimizacion
 			delete auxVelMsg;
 			auxVelMsg = nullptr;
 		}
-		if ((GetPos().y > auxLimitCollMsg->GetLimitHeight()) || (GetPos().y < 0))
-		{
-			NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x, GetVel().y * -1.0f));
-			m_CmpOwner->SendMsg(auxVelMsg);
 
-			//Optimizacion
-			delete auxVelMsg;
-			auxVelMsg = nullptr;
+		LimitWorldCollMsg* auxLimitCollMsg = dynamic_cast<LimitWorldCollMsg*>(_msgType);
+		if (auxLimitCollMsg)
+		{
+			if ((GetPos().x > auxLimitCollMsg->GetLimitWidth()) || (GetPos().x < 0))
+			{
+				NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x * -1.0f, GetVel().y));
+				m_CmpOwner->SendMsg(auxVelMsg);
+
+				//Optimizacion
+				delete auxVelMsg;
+				auxVelMsg = nullptr;
+			}
+			if ((GetPos().y > auxLimitCollMsg->GetLimitHeight()) || (GetPos().y < 0))
+			{
+				NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x, GetVel().y * -1.0f));
+				m_CmpOwner->SendMsg(auxVelMsg);
+
+				//Optimizacion
+				delete auxVelMsg;
+				auxVelMsg = nullptr;
+			}
 		}
 	}
 }
 #pragma endregion
 
 #pragma region CMP_Render
+
 void CMP_Render::SetGfxSprite(const GLuint& _gfxSprite)
 {
 	m_gfx = _gfxSprite;
@@ -179,7 +202,10 @@ void CMP_Render::SetGfxSprite(const GLuint& _gfxSprite)
 
 void CMP_InputController::Slot(const float& _elapsed)
 {
-	InputMovement();
+	if (IsActive())
+	{
+		InputMovement();
+	}
 }
 
 void CMP_InputController::InputMovement()
@@ -316,19 +342,28 @@ void CMP_Shooter::SpawnBullet(const int& movDir)
 }
 #pragma endregion
 
+#pragma region CMP_LifeBase
 void CMP_LifeBase::Slot(const float& _elapsed)
 {
+	if (IsActive())
+	{
+
+	}
 }
 
 void CMP_LifeBase::RecibirMsg(Message* _msgType)
 {
-	DamageMsg* auxDamageMsg = dynamic_cast<DamageMsg*>(_msgType);
-	if (auxDamageMsg)
+	if (IsActive())
 	{
-		TakeDamage(auxDamageMsg->GetDamage());
+		DamageMakeMsg* auxDamageMsg = dynamic_cast<DamageMakeMsg*>(_msgType);
+		if (auxDamageMsg)
+		{
+			TakeDamage(auxDamageMsg->GetDamage());
+		}
+
+		auxDamageMsg = nullptr;
 	}
 
-	auxDamageMsg = nullptr;
 }
 
 void CMP_LifeBase::SetLife(const int& _life)
@@ -349,3 +384,34 @@ void CMP_LifeBase::TakeDamage(const int& _damage)
 		IsDead();
 	}
 }
+#pragma endregion
+
+#pragma region CMP_DamageMaker
+CMP_DamageMaker::CMP_DamageMaker(const int& _hitDamage)
+{
+	SetHitDamage(_hitDamage);
+	ptrNewDamageMakeMsg = new DamageMakeMsg();
+	ptrNewDamageMakeMsg->SetDamage(GetHitDamage());
+}
+
+void CMP_DamageMaker::RecibirMsg(Message* _msgType)
+{
+	CollisionMsg* collisionMsg = dynamic_cast<CollisionMsg*>(_msgType);
+	if (collisionMsg)
+	{
+		if (collisionMsg->GetCollision())
+		{
+			MakeDamage(LogicManager::GetInstance()->m_entitiesList[collisionMsg->GetIndex()]);
+		}
+
+	}
+}
+
+void CMP_DamageMaker::MakeDamage(Entity* _otherEntity)
+{
+
+	ptrNewDamageMakeMsg->SetDamage(GetHitDamage());
+	_otherEntity->SendMsg(ptrNewDamageMakeMsg);
+
+}
+#pragma endregion
