@@ -2,13 +2,14 @@
 
 #include "example.h"
 #include <iostream> //BORRAR
-
+#include "InputManager.h"
 
 int Main(void)
 {
 	MyTimer* ptrTimerManager = new MyTimer();
 	ptrTimerManager->StartCounter();
 
+	CInputManager::GetInstance().CreateSingleton();
 	LogicManager* ptrLogicManager = LogicManager::GetInstance();
 	RenderEngine* ptrRenderManager = RenderEngine::GetInstance();
 
