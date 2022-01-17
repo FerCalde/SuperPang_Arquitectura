@@ -407,17 +407,21 @@ void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
 				//Pido un Entity disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
 				std::cout << "SPAWN!\n";
 
-				ptrPosSpawn = new vec2(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
+				//ptrPosSpawn = new vec2(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
 				//Mensaje para setear posicion y velocidad del Objeto Spawneado
 
-				ptrNewPosActiveMsg->SetNewPos(*ptrPosSpawn);
-
+				ptrNewPosActiveMsg->SetNewPos(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
+				currentEntity->SendMsg(ptrNewPosActiveMsg);
 
 				//Mensaje para Activar el GO
 				currentEntity->SendMsg(onActiveEntMsg);
 
-				delete ptrPosSpawn;
-				ptrPosSpawn = nullptr;
+				currentEntity->ActivateEntity();
+				break;
+				/*delete ptrPosSpawn;
+				ptrPosSpawn = nullptr;*/
+
+
 
 				/*for (auto& entityNotEnabled : LogicManager::GetInstance()->m_entitiesList)
 				{
