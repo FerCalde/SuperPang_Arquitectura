@@ -16,6 +16,7 @@ void LogicManager::InitLogic()
 
 
 #pragma region Create_GameEntities
+
 #pragma region Create_Player
 	auxNewEntity = new Player();
 	auxNewEntity->SetID(instanceLogicManager->id);
@@ -65,16 +66,16 @@ void LogicManager::InitLogic()
 
 	auxNewEntity = nullptr;
 
-	auxNewEntity = nullptr;
 	}
 #pragma endregion
 
 #pragma region Create_Balls
+	srand(time(NULL));
 	for (unsigned int i = 0; i < NUM_BALLS ; i++)
 	{
 		auxNewEntity = new Ball();
 
-		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(0.0, SCR_HEIGHT));
+		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT*0.5f, SCR_HEIGHT));
 		vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
 		float auxRadius(16.f);
 
@@ -102,7 +103,10 @@ void LogicManager::InitLogic()
 	auxNewEntity = nullptr;
 
 #pragma endregion
+
 #pragma endregion
+
+
 }
 
 void LogicManager::ShutdownLogic()

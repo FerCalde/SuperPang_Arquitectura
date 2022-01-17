@@ -8,8 +8,6 @@
 #include "stdafx.h"
 
 
-
-
 class CMP_Transform : public Component
 {
 private:
@@ -195,6 +193,7 @@ private:
 public:
 	int GetLife() { return m_currentLife; }
 	void SetLife(const int& _life);
+	void SetMaxLifes(const int& _life) { m_lifeMax = _life; }
 
 	void RefillLifes(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
 
@@ -242,7 +241,7 @@ public:
 class CMP_LifeBullet : public CMP_LifeBase
 {
 public:
-	CMP_LifeBullet() { SetLife(1); }
+	CMP_LifeBullet() { SetMaxLifes(1); SetLife(1); }
 	virtual ~CMP_LifeBullet() {}
 
 	// Interfaz

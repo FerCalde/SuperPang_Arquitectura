@@ -59,8 +59,8 @@ public:
 		AddComponent(new CMP_DamageMaker);
 		//AddComponent(new CMP_LifePlayer);
 		AddComponent(new CMP_Render);
-
 		AddComponent(new CMP_SpawnerEntity);
+
 	}
 
 	virtual ~Player() {};

@@ -24,8 +24,8 @@ private:
 	const unsigned int NUM_BALLS = 10;	
 	const float MAX_BALL_SPEED = 15.f;
 
-	const unsigned int NUM_BULLETS = 10;
-	const float MAX_BULLET_SPEED = 15.f;
+	const unsigned int NUM_BULLETS = 5;
+	const float MAX_BULLET_SPEED = 150.f;
 
 	size_t id = 0;
 
