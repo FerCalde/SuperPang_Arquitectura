@@ -76,31 +76,61 @@ void LogicManager::InitLogic()
 #pragma endregion
 
 #pragma region Create_Balls
-	srand(time(NULL));
-	for (unsigned int i = 0; i < NUM_BALLS; i++)
+	//srand(time(NULL));
+
+	int offsetBallsX = 60;
+	int offsetBallY = 80;
+	const int ROWS = 3;
+	const int COLUMS = 3;
+	vec2 posBallSpawn(SCR_WIDTH, SCR_HEIGHT);
+	int cantSpawned = 0;
+
+	//for (unsigned int k = 0; k < NUM_BALLS; k++)
 	{
-		auxNewEntity = new Ball();
+		for(int i=0; i<=ROWS; i++)
+		{
+			posBallSpawn.y-= offsetBallY;
 
-		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT * 0.5f, SCR_HEIGHT));
-		vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
-		float auxRadius(20.f);
+			for(int j=0; j<=COLUMS; j++)
+			{
+				posBallSpawn.x -= offsetBallsX;
+				
+				if (cantSpawned < NUM_BALLS)
+				{
+					auxNewEntity = new Ball();
+
+					//vec2 auxPos(p);
+					//vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT * 0.5f, SCR_HEIGHT));
 
 
-		//auxNewEntity->SendMsg();
-		auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
-		auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
-		auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
-
-		auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texsmallball);
-
-		auxNewEntity->SetID(instanceLogicManager->id);
+					vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
+					float auxRadius(20.f);
 
 
-		auxNewEntity->ActivateEntity();
+					//auxNewEntity->SendMsg();
+					//auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
+					auxNewEntity->FindComponent<CMP_Transform>()->SetPos(posBallSpawn);
+					auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
+					auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
 
-		instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
-		instanceLogicManager->id++;
-		auxNewEntity = nullptr;
+					auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texsmallball);
+
+					auxNewEntity->SetID(instanceLogicManager->id);
+
+
+					auxNewEntity->ActivateEntity();
+
+					instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
+					instanceLogicManager->id++;
+					auxNewEntity = nullptr;
+					cantSpawned++;
+				}
+				
+			}
+			
+		}
+
+		
 
 	}
 
