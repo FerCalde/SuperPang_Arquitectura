@@ -14,6 +14,8 @@
 void RenderEngine::InitRender()
 {
 	FONT_Init();
+	
+	
 
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT); // Sets up clipping.
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);	// Specifies clear values for the color buffers.
@@ -29,6 +31,8 @@ void RenderEngine::InitRender()
 void RenderEngine::ShutdownRender()
 {
 	FONT_End();
+	
+	
 }
 
 
@@ -45,7 +49,7 @@ void RenderEngine::RenderSlot(float _fps, float _elapsed, float _currentTime)
 		}
 	}
 	//CORE_RenderCenteredSprite(vec2(SCR_WIDTH*0.5f, SCR_HEIGHT*0.5f), vec2(SCR_WIDTH*0.9f, SCR_HEIGHT*0.9f), instanceLogicManager->GetTexBK2());
-	CORE_RenderCenteredSprite(vec2(SCR_WIDTH*0.5f, SCR_HEIGHT*0.5f), vec2(SCR_WIDTH, SCR_HEIGHT), instanceLogicManager->GetTexBK2());
+	CORE_RenderCenteredSprite(vec2(SCR_WIDTH*0.5f, SCR_HEIGHT*0.5f-5.f), vec2(SCR_WIDTH-15.f, SCR_HEIGHT-15.f), instanceLogicManager->GetTexBK2());
 	// Render m_entitiesList
 	for (unsigned int i = 0; i < instanceLogicManager->m_entitiesList.size(); i++) {
 
@@ -65,6 +69,8 @@ void RenderEngine::RenderSlot(float _fps, float _elapsed, float _currentTime)
 	}
 
 
+	//
+
 	// Text
 	int roundElapsed = static_cast<int>(_elapsed);
 	std::string s = std::to_string(_elapsed);
@@ -80,15 +86,26 @@ void RenderEngine::RenderSlot(float _fps, float _elapsed, float _currentTime)
 	std::string s3 = std::to_string(roundFps);
 	const char* currentFPS = s3.c_str();
 
+	std::string s4 = std::to_string(LogicManager::GetInstance()->GetGameManager()->GetEnemiesDead());
+	const char* currentEnemiesDeadUI = s4.c_str();
 
-	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 60), "LOGIC TIME: ");
-	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 35), logicCurrentTime);
+	std::string s5 = std::to_string(LogicManager::GetInstance()->GetGameManager()->GetPlayerLifes());
+	const char* currentPlayerLifesUI = s5.c_str();
+
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 250), "PLAYER LIFES");
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 235), currentPlayerLifesUI);
+
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 210), "ENEMIES KILL");
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 185), currentEnemiesDeadUI);
+
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 160), "CURRENT FPS");
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 135), currentFPS);
 
 	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 110), "REAL TIME");
 	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 85), realCurrentTime);
 
-	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 160), "CURRENT FPS");
-	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 135), currentFPS);
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 60), "LOGIC TIME: ");
+	FONT_DrawString(vec2(SCR_WIDTH / 2 + 5 * 15, 35), logicCurrentTime);
 
 	// Exchanges the front and back buffers
 	SYS_Show();

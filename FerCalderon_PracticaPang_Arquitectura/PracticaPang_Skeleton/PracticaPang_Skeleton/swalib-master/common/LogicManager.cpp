@@ -11,9 +11,12 @@ LogicManager* LogicManager::m_instance = nullptr;
 void LogicManager::InitLogic()
 {
 	LogicManager* instanceLogicManager = LogicManager::GetInstance();
-	LoadTextures();
-	Entity* auxNewEntity = nullptr;
 
+	m_GameManager = new CGameManagerInfo();
+	LoadTextures();
+
+
+	Entity* auxNewEntity = nullptr;
 
 #pragma region Create_GameEntities
 
@@ -22,8 +25,8 @@ void LogicManager::InitLogic()
 	auxNewEntity->SetID(instanceLogicManager->id);
 
 
-	vec2 auxPos(SCR_WIDTH*0.5f,  20);
-	vec2 auxVel(200,0);
+	vec2 auxPos(SCR_WIDTH * 0.5f, 20);
+	vec2 auxVel(200, 0);
 	float auxRadius(20.f);
 
 
@@ -40,44 +43,45 @@ void LogicManager::InitLogic()
 	auxNewEntity->ActivateEntity();
 	instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
 	instanceLogicManager->id++;
+	GetGameManager()->SetPlayerLifes(auxNewEntity->FindComponent<CMP_LifePlayer>()->GetLife());
 	auxNewEntity = nullptr;
 #pragma endregion
 
 #pragma region Create_Bullets
 	for (unsigned int i = 0; i < NUM_BULLETS; i++)
 	{
-	auxNewEntity = new Bullet();
-	vec2 auxPos(0,0);
-	vec2 auxVel(0, MAX_BULLET_SPEED);
-	float auxRadius(10.f);
+		auxNewEntity = new Bullet();
+		vec2 auxPos(0, 0);
+		vec2 auxVel(0, MAX_BULLET_SPEED);
+		float auxRadius(10.f);
 
 
-	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
-	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
-	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
+		auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
+		auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
+		auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
 
-	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texBullet);
+		auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texBullet);
 
-	auxNewEntity->SetID(instanceLogicManager->id);
+		auxNewEntity->SetID(instanceLogicManager->id);
 
 
-	auxNewEntity->DesactivateEntity();
+		auxNewEntity->DesactivateEntity();
 
-	instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
-	instanceLogicManager->id++;
+		instanceLogicManager->m_entitiesList.push_back(auxNewEntity);
+		instanceLogicManager->id++;
 
-	auxNewEntity = nullptr;
+		auxNewEntity = nullptr;
 
 	}
 #pragma endregion
 
 #pragma region Create_Balls
 	srand(time(NULL));
-	for (unsigned int i = 0; i < NUM_BALLS ; i++)
+	for (unsigned int i = 0; i < NUM_BALLS; i++)
 	{
 		auxNewEntity = new Ball();
 
-		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT*0.5f, SCR_HEIGHT));
+		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT * 0.5f, SCR_HEIGHT));
 		vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
 		float auxRadius(20.f);
 
@@ -99,8 +103,6 @@ void LogicManager::InitLogic()
 		auxNewEntity = nullptr;
 
 	}
-
-
 
 	auxNewEntity = nullptr;
 
@@ -161,10 +163,27 @@ void LogicManager::LogicWorldSlot(float _fFixedTick)
 {
 	for (auto& entity : m_entitiesList)
 	{
-		if(entity->IsActive())
+		if (entity->IsActive())
 		{
-			entity->Slot(_fFixedTick);	
+			entity->Slot(_fFixedTick);
 		}
 	}
+}
+
+Entity* LogicManager::FindGameObjectOfTag(Entity::ETagEntity _tagFinder)
+{
+	for (Entity* currentEntity : m_entitiesList)
+	{
+		if (!currentEntity->IsActive())
+		{
+
+			return (currentEntity->HasTag(_tagFinder)) ? currentEntity : nullptr;
+			break;
+		}
+
+	}
+	return nullptr;
+
+	return nullptr;
 }
 

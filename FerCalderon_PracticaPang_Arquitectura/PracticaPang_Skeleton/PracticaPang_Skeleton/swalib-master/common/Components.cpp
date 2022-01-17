@@ -397,13 +397,6 @@ void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
 				currentEntity->SendMsg(auxPosMsg);
 
 
-				////currentEntity->FindComponent<CMP_Transform>()->SetPos(auxFirePoint);
-
-				/*vec2 auxVelInit(m_CmpOwner->FindComponent<CMP_Transform>()->GetVelInit());
-				currentEntity->FindComponent<CMP_Transform>()->SetVel(auxVelInit);
-
-				currentEntity->FindComponent<CMP_Transform>()->SetMoveDir(movDir);
-				(movDir > 0) ? currentEntity->FindComponent<CMP_Render>()->SetSymbol('>') : currentEntity->FindComponent<CMP_Render>()->SetSymbol('<');*/
 				currentEntity->ActivateEntity();
 				break;
 			}
@@ -412,7 +405,7 @@ void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
 	//auxBullet = nullptr;
 }
 
-void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
+void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag, const vec2& _offsetPos)
 {
 
 	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
@@ -424,10 +417,7 @@ void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
 				//Pido un Entity disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
 				std::cout << "SPAWN!\n";
 
-				//ptrPosSpawn = new vec2(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
-				//Mensaje para setear posicion y velocidad del Objeto Spawneado
-
-				ptrNewPosActiveMsg->SetNewPos(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos());
+				ptrNewPosActiveMsg->SetNewPos(m_CmpOwner->FindComponent<CMP_Transform>()->GetPos()+_offsetPos);
 				currentEntity->SendMsg(ptrNewPosActiveMsg);
 
 				//Mensaje para Activar el GO
@@ -435,8 +425,7 @@ void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
 
 				currentEntity->ActivateEntity();
 				break;
-				/*delete ptrPosSpawn;
-				ptrPosSpawn = nullptr;*/
+				
 
 
 
@@ -466,39 +455,7 @@ void CMP_SpawnerEntity::SpawnEntity(Entity::ETagEntity _entitySpawnTag)
 }
 
 
-//void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
-//{
-//	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
-//	{
-//		if (!currentEntity->IsActive())
-//		{
-//			if (currentEntity->HasTag(Entity::ETagEntity::Bullet))
-//			{
-//				//Pido una bala disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
-//				std::cout << "FIRE!\n";
-//
-//				vec2 auxFirePoint(currentEntity->FindComponent<CMP_Transform>()->GetPos().x, 0);
-//
-//				auxFirePoint.y = m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().y + movDir;
-//
-//				NewPosMsg* auxPosMsg = new NewPosMsg(auxFirePoint);
-//				currentEntity->SendMsg(auxPosMsg);
-//
-//
-//				////currentEntity->FindComponent<CMP_Transform>()->SetPos(auxFirePoint);
-//
-//				/*vec2 auxVelInit(m_CmpOwner->FindComponent<CMP_Transform>()->GetVelInit());
-//				currentEntity->FindComponent<CMP_Transform>()->SetVel(auxVelInit);
-//
-//				currentEntity->FindComponent<CMP_Transform>()->SetMoveDir(movDir);
-//				(movDir > 0) ? currentEntity->FindComponent<CMP_Render>()->SetSymbol('>') : currentEntity->FindComponent<CMP_Render>()->SetSymbol('<');*/
-//				currentEntity->ActivateEntity();
-//				break;
-//			}
-//		}
-//	}
-//	//auxBullet = nullptr;
-//}
+
 #pragma endregion
 
 #pragma region CMP_LifeBase
@@ -541,7 +498,7 @@ void CMP_LifeBase::RefillLifes()
 	m_currentLife = m_lifeMax;
 }
 
-void CMP_LifeBase::TakeDamage(const int& _damage)
+ void CMP_LifeBase::TakeDamage(const int& _damage)
 {
 	m_currentLife -= _damage;
 	if (m_currentLife <= 0)
@@ -550,6 +507,19 @@ void CMP_LifeBase::TakeDamage(const int& _damage)
 	}
 }
 #pragma endregion
+
+
+void CMP_LifeEnemy::IsDead()
+{
+	LogicManager::GetInstance()->GetGameManager()->AddEnemyDead();
+	m_CmpOwner->DesactivateEntity();
+}
+
+void CMP_LifePlayer::TakeDamage(const int& _damage)
+{
+	CMP_LifeBase::TakeDamage(_damage);
+	LogicManager::GetInstance()->GetGameManager()->SetPlayerLifes(GetLife());
+}
 
 #pragma region CMP_DamageMaker
 
@@ -584,3 +554,39 @@ void CMP_DamageMaker::MakeDamage(Entity* _otherEntity)
 
 }
 #pragma endregion
+
+
+
+//void CMP_SpawnerEntity::SpawnBullet(const int& movDir)
+//{
+//	for (Entity* currentEntity : LogicManager::GetInstance()->m_entitiesList)
+//	{
+//		if (!currentEntity->IsActive())
+//		{
+//			if (currentEntity->HasTag(Entity::ETagEntity::Bullet))
+//			{
+//				//Pido una bala disponible al Gestor de entidades. Debe estar desactivada esa bala para considerarse disponible
+//				std::cout << "FIRE!\n";
+//
+//				vec2 auxFirePoint(currentEntity->FindComponent<CMP_Transform>()->GetPos().x, 0);
+//
+//				auxFirePoint.y = m_CmpOwner->FindComponent<CMP_Transform>()->GetPos().y + movDir;
+//
+//				NewPosMsg* auxPosMsg = new NewPosMsg(auxFirePoint);
+//				currentEntity->SendMsg(auxPosMsg);
+//
+//
+//				////currentEntity->FindComponent<CMP_Transform>()->SetPos(auxFirePoint);
+//
+//				/*vec2 auxVelInit(m_CmpOwner->FindComponent<CMP_Transform>()->GetVelInit());
+//				currentEntity->FindComponent<CMP_Transform>()->SetVel(auxVelInit);
+//
+//				currentEntity->FindComponent<CMP_Transform>()->SetMoveDir(movDir);
+//				(movDir > 0) ? currentEntity->FindComponent<CMP_Render>()->SetSymbol('>') : currentEntity->FindComponent<CMP_Render>()->SetSymbol('<');*/
+//				currentEntity->ActivateEntity();
+//				break;
+//			}
+//		}
+//	}
+//	//auxBullet = nullptr;
+//}
