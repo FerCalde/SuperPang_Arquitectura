@@ -5,17 +5,50 @@
 #include "vector2d.h"
 #include "sys.h"
 
-class Ball : public Entity
+
+//ALL ENTITIES WILL BE GAME OBJECTS AND MUUUUUUST HAVE A CMP_TRANSFORM
+class GameObject : public Entity
+{
+
+public:
+	GameObject()
+	{
+		SetTag(ETagEntity::Invalid);
+		AddComponent(new CMP_Transform);
+	}
+
+	virtual ~GameObject() {};
+
+};
+
+class Ball : public GameObject
 {
 
 public:
 	Ball()
 	{
-		AddComponent(new CMP_Transform);
+		SetTag(ETagEntity::Enemy);
 		AddComponent(new CMP_Collider);
 		AddComponent(new CMP_Render);
 	}
 
-	~Ball() {};
+	virtual ~Ball() {};
+
+};
+
+class GameObject;
+class Player :public GameObject
+{
+public:
+	Player()
+	{
+		SetTag(ETagEntity::Player);
+		AddComponent(new CMP_Collider);
+		AddComponent(new CMP_Render);
+		//AddComponent(new CMP_InputController); TA ROTO :(
+		//AddComponent(new CMP_Shooter);
+	}
+
+	virtual ~Player() {};
 
 };

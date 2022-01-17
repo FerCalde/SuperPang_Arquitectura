@@ -30,7 +30,9 @@ private:
 	std::vector<Component*> m_ComponentList;
 
 public:
-	Entity() { SetTag(ETagEntity::Invalid); }
+	Entity() {
+		SetTag(ETagEntity::Invalid);
+	}
 	~Entity();
 
 	void SetID(size_t _ID) { id = _ID; }

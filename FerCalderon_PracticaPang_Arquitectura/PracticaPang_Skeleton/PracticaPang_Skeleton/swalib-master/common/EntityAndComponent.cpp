@@ -12,9 +12,12 @@ Entity::~Entity()
 
 void Entity::Slot(float _elapsed)
 {
-	for (auto& cmp : m_ComponentList)
+	if (this->IsActive())
 	{
-		cmp->Slot(_elapsed);
+		for (auto& cmp : m_ComponentList)
+		{
+			cmp->Slot(_elapsed);
+		}
 	}
 }
 

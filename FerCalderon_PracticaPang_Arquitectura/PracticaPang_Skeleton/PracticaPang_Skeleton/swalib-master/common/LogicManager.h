@@ -1,6 +1,7 @@
 #include <vector>
 #include "balls.h"
 #include "EntityAndComponent.h"
+#include "Player.h"
 
 class LogicManager // SINGLETON
 {
@@ -17,6 +18,7 @@ public:
 private:
 	GLuint texsmallball = 0;
 	GLuint texbkg = 0;
+	GLuint texPlayer = 0;
 	const unsigned int NUM_BALLS = 10;	
 	const float MAX_BALL_SPEED = 15.f;
 	size_t id = 0;
@@ -30,6 +32,7 @@ public:
 
 	GLuint GetTexBK() { return texbkg; }
 	GLuint GetTexSmallBall() { return texsmallball; }
+	GLuint GetTexPlayer() { return texPlayer; }
 
 	void InitLogic();
 	void ShutdownLogic();

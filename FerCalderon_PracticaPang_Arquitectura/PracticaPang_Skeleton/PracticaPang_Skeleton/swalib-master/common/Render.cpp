@@ -47,10 +47,20 @@ void RenderEngine::RenderSlot(float _fps, float _elapsed, float _currentTime)
 
 	// Render m_entitiesList
 	for (unsigned int i = 0; i < instanceLogicManager->m_entitiesList.size(); i++) {
-		CORE_RenderCenteredSprite(instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Transform>()->GetPos(),
-			vec2(instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Collider>()->GetRadius() * 2.f,
-				instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Collider>()->GetRadius() * 2.f),
-			instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Render>()->GetGfxSprite());
+
+		if (instanceLogicManager->m_entitiesList[i]->IsActive())
+		{
+
+			if (instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Render>())
+			{
+				CORE_RenderCenteredSprite(instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Transform>()->GetPos(),
+					vec2(instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Collider>()->GetRadius() * 2.f,
+						instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Collider>()->GetRadius() * 2.f),
+					instanceLogicManager->m_entitiesList[i]->FindComponent<CMP_Render>()->GetGfxSprite());
+
+			}
+
+		}
 	}
 
 

@@ -10,7 +10,6 @@ public:
 	virtual ~Message() {}
 };
 
-
 #pragma region TransformMsg
 class NewPosMsg : public Message
 {
@@ -26,7 +25,6 @@ public:
 	vec2 GetNewPos() { return m_pos;}
 };
 
-
 class NewVelMsg : public Message
 {
 private:
@@ -41,6 +39,20 @@ public:
 	void SetNewVel(vec2 _NewVelocity) { m_vel = _NewVelocity; }
 	vec2 GetNewVel() { return m_vel; }
 
+};
+
+class NewMoveDirMsg : public Message
+{
+private :
+	int m_moveDir;
+
+public:
+	//NewMoveDirMsg(){}
+	NewMoveDirMsg(int _NewMoveDir): m_moveDir(_NewMoveDir){}
+	virtual ~NewMoveDirMsg() { }
+
+	void SetNewMoveDir(const int& _NewMoveDir) { m_moveDir = _NewMoveDir; }
+	int GetNewMoveDir() { return m_moveDir; }
 };
 #pragma endregion
 
@@ -66,17 +78,17 @@ public:
 class EntCollisionMsg : public CollisionMsg
 {
 private:
-	float reboteChangeSpeed;
+	float invertSpeed;
 
 public:
-	EntCollisionMsg() : reboteChangeSpeed(-1.f) { }
+	EntCollisionMsg() : invertSpeed(-1.f) { }
 	virtual ~EntCollisionMsg() { }
 
 	// SETTER
-	void SetReboteChangeSpeed(float _Rebound) { reboteChangeSpeed = _Rebound; }
+	void SetInvertChangeSpeed(float _Rebound) { invertSpeed = _Rebound; }
 
 	// GETTER
-	float GetReboteChangeSpeed() { return reboteChangeSpeed; }
+	float GetInvertChangeSpeed() { return invertSpeed; }
 };
 
 class LimitWorldCollMsg : public CollisionMsg
@@ -93,3 +105,16 @@ public:
 	const int GetLimitHeight() const { return limit_SCR_HEIGHT; }
 };
 #pragma endregion
+
+class DamageMsg : public Message
+{
+	
+public:
+	DamageMsg(const int& _damage) { SetDamage(_damage); }
+	void SetDamage(const int& _damage) { m_damage = _damage; }
+	int GetDamage() { return m_damage; }
+
+private:
+	int m_damage = 1; //Minimun MUST be 1;
+
+};
