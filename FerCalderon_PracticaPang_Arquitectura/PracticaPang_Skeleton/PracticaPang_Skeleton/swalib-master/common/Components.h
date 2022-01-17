@@ -160,7 +160,6 @@ public:
 	virtual void Slot(const float& _elapsed) override {}
 	virtual void RecibirMsg(Message* _msgType) override;
 
-
 private:
 	int m_hitDamage = 1;
 	DamageMakeMsg* ptrNewDamageMakeMsg;
