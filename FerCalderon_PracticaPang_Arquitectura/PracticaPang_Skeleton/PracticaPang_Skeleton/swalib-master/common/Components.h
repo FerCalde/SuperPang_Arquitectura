@@ -6,7 +6,7 @@
 #pragma endregion
 #include "vector2d.h"
 #include "stdafx.h"
-
+#include "InputManager.h"
 
 
 class CMP_Transform : public Component
@@ -14,20 +14,25 @@ class CMP_Transform : public Component
 private:
 	vec2 m_vel;
 	vec2 m_pos;
+	int m_moveDirection = 1;
+
 	NewPosMsg* ptrNewPosMsg;
 
 public:
 	CMP_Transform();
 	virtual ~CMP_Transform();
 
+
+	void SetMoveDir(const int& _moveDir) { m_moveDirection = _moveDir; }
 	void SetPos(const vec2& _pos) { m_pos = _pos; }
 	void SetVel(const vec2& _vel) { m_vel = _vel; }
 
+	int GetMoveDir() { return m_moveDirection; }
 	vec2& GetPos() { return m_pos; }
 	vec2& GetVel() { return m_vel; }
 
-	void UpdatePosition(const float& _elapsed) { m_pos += m_vel * _elapsed; }
-	
+	void UpdatePosition(const float& _elapsed) { m_pos += m_vel * _elapsed * GetMoveDir(); }
+
 	// Interfaz
 	virtual void Slot(const float& _elapsed) override;
 	virtual void RecibirMsg(Message* _msgType) override;
@@ -40,8 +45,9 @@ private:
 	CollisionMsg* ptrCollisionMsg;
 	LimitWorldCollMsg* ptrLimitCollisionMsg;
 
+
 public:
-	
+
 	float radius = 0;
 	CMP_Collider();
 	virtual ~CMP_Collider();
@@ -53,12 +59,12 @@ public:
 	vec2& GetVel() { return m_CmpOwner->FindComponent<CMP_Transform>()->GetVel(); }
 
 	bool IsColliding(Entity* _otherEntity);
-	
+
 	// Interfaz
 	virtual void Slot(const float& _elapsed) override;
 	virtual void RecibirMsg(Message* _msgType) override;
 
-	
+
 };
 
 class CMP_Render : public Component
@@ -77,4 +83,74 @@ public:
 	virtual void Slot(const float& _elapsed) override {};
 	virtual void RecibirMsg(Message* _msgType) override {};
 
+};
+
+class CMP_InputController :public Component
+{
+private:
+	NewMoveDirMsg* ptrNewMoveDirMsg;
+
+public:
+	CMP_InputController() {
+		ptrNewMoveDirMsg = new NewMoveDirMsg(m_CmpOwner->FindComponent<CMP_Transform>()->GetMoveDir());
+	}
+	virtual ~CMP_InputController() {}
+
+	void InputMovement();
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override;
+	virtual void RecibirMsg(Message* _msgType) override {};
+};
+
+class CMP_Shooter : public Component
+{
+public:
+	CMP_Shooter() {}
+	virtual ~CMP_Shooter() {}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override;
+	virtual void RecibirMsg(Message* _msgType) override {};
+
+
+private:
+	float m_TimeFireSpawn_MAX = 1.f;
+	//float m_TimeFireSpawn_MAX = 0.3f;
+	float m_TimeFireSpawn = 0;
+public:
+	void SpawnBullet(const int& movDir);
+};
+
+
+
+class CMP_LifeBase : public Component
+{
+public:
+	CMP_LifeBase() { OnActivateGO(); }
+	virtual ~CMP_LifeBase() {}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override;
+	virtual void RecibirMsg(Message* _msgType) override;
+
+
+
+private:
+	int m_lifeMax = 3;
+	int m_currentLife = m_lifeMax;
+public:
+	int GetLife() { return m_currentLife; }
+	void SetLife(const int& _life);
+
+	void OnActivateGO(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
+
+
+	
+	void TakeDamage(const int& _damage = 1); //Por defecto quita 1, se puede modificar si se quiere un juego con vida en base a 100 o quitar dos vidas (algun power up)por ejemplo.
+	
+	//Interfaz de la vida
+	virtual void IsDead() = 0;
 };
