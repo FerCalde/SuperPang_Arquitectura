@@ -57,10 +57,9 @@ public:
 		AddComponent(new CMP_InputController);
 		AddComponent(new CMP_Collider);
 		AddComponent(new CMP_DamageMaker);
-		//AddComponent(new CMP_LifePlayer);
+		AddComponent(new CMP_LifePlayer);
 		AddComponent(new CMP_Render);
 		AddComponent(new CMP_SpawnerEntity);
-
 
 	}
 

@@ -140,7 +140,7 @@ private:
 
 public:
 	void SpawnBullet(const int& movDir);
-	void SpawnEntity(Entity::ETagEntity _entitySpawn);
+	void SpawnEntity(Entity::ETagEntity _entitySpawnTag, const vec2& _offsetPos = vec2(0, 0));
 	void SetTimeFireSpawnMax(const float& _timeMax) { m_TimeFireSpawn_MAX = _timeMax; }
 };
 
@@ -198,7 +198,7 @@ public:
 
 	void RefillLifes(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
 
-	void TakeDamage(const int& _damage = 1); //Por defecto quita 1, se puede modificar si se quiere un juego con vida en base a 100 o quitar dos vidas (algun power up)por ejemplo.
+	virtual void TakeDamage(const int& _damage = 1); //Por defecto quita 1, se puede modificar si se quiere un juego con vida en base a 100 o quitar dos vidas (algun power up)por ejemplo.
 
 	//Interfaz de la vida
 	virtual void IsDead() = 0;
@@ -218,10 +218,11 @@ public:
 	//Propia de Life
 	virtual void IsDead()
 	{
+		
 		m_CmpOwner->DesactivateEntity();
 		//GAME OVER O.o
 	}
-
+	virtual void TakeDamage(const int& _damage = 1) override;
 };
 
 class CMP_LifeEnemy : public CMP_LifeBase
@@ -236,7 +237,8 @@ public:
 	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
 
 	//Propia de Life
-	virtual void IsDead() { m_CmpOwner->DesactivateEntity(); }
+	virtual void IsDead() override;
+	
 };
 
 class CMP_LifeBullet : public CMP_LifeBase
