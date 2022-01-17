@@ -31,10 +31,11 @@ public:
 	{
 		SetTag(ETagEntity::Enemy);
 		SetTagIgnore(ETagEntity::Invalid);
+		
 		AddComponent(new CMP_Collider);
-		AddComponent(new CMP_Render);
 		AddComponent(new CMP_DamageMaker);
-		//AddComponent(new CMP_LifePlayer);
+		AddComponent(new CMP_Render);
+		AddComponent(new CMP_LifeEnemy);
 	}
 
 	virtual ~Ball() {};
@@ -52,13 +53,14 @@ public:
 	{
 		SetTag(ETagEntity::Player);
 		SetTagIgnore(ETagEntity::Bullet);
+		
 		AddComponent(new CMP_Collider);
-		AddComponent(new CMP_Render);
-		AddComponent(new CMP_LifePlayer);
 		AddComponent(new CMP_DamageMaker);
+		AddComponent(new CMP_LifePlayer);
+		AddComponent(new CMP_Render);
 
 		//AddComponent(new CMP_InputController); TA ROTO :(
-		AddComponent(new CMP_Shooter);
+		//AddComponent(new CMP_Shooter);
 	}
 
 	virtual ~Player() {};

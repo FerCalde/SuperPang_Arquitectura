@@ -194,6 +194,25 @@ public :
 	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
 
 	//Propia de Life
-	virtual void IsDead() { m_CmpOwner->DesactivateEntity(); }
+	virtual void IsDead() { m_CmpOwner->DesactivateEntity();
+	//GAME OVER O.o
 
+
+	}
+
+};
+
+class CMP_LifeEnemy : public CMP_LifeBase
+{
+public:
+	CMP_LifeEnemy() { }
+	virtual ~CMP_LifeEnemy() {}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override {  }
+	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
+
+	//Propia de Life
+	virtual void IsDead() { m_CmpOwner->DesactivateEntity(); }
 };

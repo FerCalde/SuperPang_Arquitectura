@@ -108,9 +108,12 @@ void CMP_Collider::Slot(const float& _elapsed)
 				ptrCollisionMsg->SetCollision(true);
 				ptrCollisionMsg->SetIndex(_otherEntity->GetID());
 
-				m_CmpOwner->SendMsg(ptrCollisionMsg);
-
 				//HACER DAÑO A LA ENTIDAD
+				//Entidades con mismo tag no deben hacerse damage entre si. 
+				_otherEntity->HasTag(m_CmpOwner->GetTag()) ? ptrCollisionMsg->SetCanDamage(false) : ptrCollisionMsg->SetCanDamage(true);;
+
+
+				m_CmpOwner->SendMsg(ptrCollisionMsg);
 
 
 				break;
@@ -387,6 +390,7 @@ void CMP_LifeBase::TakeDamage(const int& _damage)
 #pragma endregion
 
 #pragma region CMP_DamageMaker
+
 CMP_DamageMaker::CMP_DamageMaker(const int& _hitDamage)
 {
 	SetHitDamage(_hitDamage);
@@ -401,7 +405,10 @@ void CMP_DamageMaker::RecibirMsg(Message* _msgType)
 	{
 		if (collisionMsg->GetCollision())
 		{
-			MakeDamage(LogicManager::GetInstance()->m_entitiesList[collisionMsg->GetIndex()]);
+			if (collisionMsg->GetCanDamage())
+			{
+				MakeDamage(LogicManager::GetInstance()->m_entitiesList[collisionMsg->GetIndex()]);
+			}
 		}
 
 	}
