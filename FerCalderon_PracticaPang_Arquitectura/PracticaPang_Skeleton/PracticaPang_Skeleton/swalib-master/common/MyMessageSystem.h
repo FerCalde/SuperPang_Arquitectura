@@ -62,7 +62,7 @@ class CollisionMsg : public Message
 private:
 		bool isColliding;
 		int entityListIndex;
-
+		bool canDamage = false;
 public:
 		CollisionMsg() : isColliding(false), entityListIndex(-1) { }
 		CollisionMsg(bool _isColliding, int _entityListIndex) : isColliding(_isColliding), entityListIndex(_entityListIndex) {}
@@ -70,9 +70,11 @@ public:
 
 		void SetCollision(bool _isColliding) { isColliding = _isColliding; }
 		void SetIndex(int _entityListIndex) { entityListIndex = _entityListIndex; }
+		void SetCanDamage(bool _canDamage) { canDamage = _canDamage; }
 
 		bool GetCollision() { return isColliding; }
 		int GetIndex() { return entityListIndex; }
+		bool GetCanDamage(){ return canDamage; }
 };
 
 

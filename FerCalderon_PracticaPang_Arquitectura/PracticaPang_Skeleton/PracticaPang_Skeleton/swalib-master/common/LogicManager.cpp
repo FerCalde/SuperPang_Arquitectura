@@ -27,7 +27,7 @@ void LogicManager::InitLogic()
 	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
 
-	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(16.f);
+	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(50.f);
 	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texPlayer);
 
 
@@ -89,7 +89,7 @@ void LogicManager::LoadTextures()
 {
 	texbkg = CORE_LoadPNG("../../data/circle-bkg-128.png", true);
 	texsmallball = CORE_LoadPNG("../../data/tyrian_ball.png", false);
-	texPlayer = CORE_LoadPNG("../../data/ball128.png", false);
+	texPlayer = CORE_LoadPNG("../../data/Player.png", false);
 }
 
 void LogicManager::ShutdownTextures()
