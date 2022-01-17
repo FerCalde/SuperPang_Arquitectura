@@ -21,6 +21,8 @@ public:
 
 };
 
+
+
 class Ball : public GameObject
 {
 
@@ -28,13 +30,19 @@ public:
 	Ball()
 	{
 		SetTag(ETagEntity::Enemy);
+		SetTagIgnore(ETagEntity::Invalid);
 		AddComponent(new CMP_Collider);
 		AddComponent(new CMP_Render);
+		AddComponent(new CMP_DamageMaker);
+		//AddComponent(new CMP_LifePlayer);
 	}
 
 	virtual ~Ball() {};
 
 };
+
+
+
 
 class GameObject;
 class Player :public GameObject
@@ -43,12 +51,19 @@ public:
 	Player()
 	{
 		SetTag(ETagEntity::Player);
+		SetTagIgnore(ETagEntity::Bullet);
 		AddComponent(new CMP_Collider);
 		AddComponent(new CMP_Render);
+		AddComponent(new CMP_LifePlayer);
+		AddComponent(new CMP_DamageMaker);
+
 		//AddComponent(new CMP_InputController); TA ROTO :(
-		//AddComponent(new CMP_Shooter);
+		AddComponent(new CMP_Shooter);
 	}
 
 	virtual ~Player() {};
 
 };
+
+
+

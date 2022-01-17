@@ -45,7 +45,6 @@ private:
 	CollisionMsg* ptrCollisionMsg;
 	LimitWorldCollMsg* ptrLimitCollisionMsg;
 
-
 public:
 
 	float radius = 0;
@@ -124,6 +123,36 @@ public:
 };
 
 
+class CMP_DamageMaker : public Component
+{
+public:
+	CMP_DamageMaker(const int& _hitDamage = 1);
+	
+	virtual ~CMP_DamageMaker() 
+	{
+		delete ptrNewDamageMakeMsg;
+		ptrNewDamageMakeMsg = nullptr;
+	}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override {}
+	virtual void RecibirMsg(Message* _msgType) override;
+
+
+private:
+	int m_hitDamage = 1;
+	DamageMakeMsg* ptrNewDamageMakeMsg;
+
+public :
+	void MakeDamage(Entity* _otherEntity);
+	
+
+	int GetHitDamage(){ return m_hitDamage; }
+	void SetHitDamage(const int& _hitDamage = 1) { m_hitDamage = _hitDamage; }
+};
+
+
 
 class CMP_LifeBase : public Component
 {
@@ -147,10 +176,24 @@ public:
 
 	void OnActivateGO(); //Recibe mensaje cuando se activa un GO (Por hacer Spawn) y rellena la vida al maximo
 
-
-	
 	void TakeDamage(const int& _damage = 1); //Por defecto quita 1, se puede modificar si se quiere un juego con vida en base a 100 o quitar dos vidas (algun power up)por ejemplo.
 	
 	//Interfaz de la vida
 	virtual void IsDead() = 0;
+};
+
+class CMP_LifePlayer :public CMP_LifeBase
+{
+public :
+	CMP_LifePlayer() { }
+	virtual ~CMP_LifePlayer() {}
+
+
+	// Interfaz
+	virtual void Slot(const float& _elapsed) override {  }
+	virtual void RecibirMsg(Message* _msgType) override { CMP_LifeBase::RecibirMsg(_msgType); }
+
+	//Propia de Life
+	virtual void IsDead() { m_CmpOwner->DesactivateEntity(); }
+
 };

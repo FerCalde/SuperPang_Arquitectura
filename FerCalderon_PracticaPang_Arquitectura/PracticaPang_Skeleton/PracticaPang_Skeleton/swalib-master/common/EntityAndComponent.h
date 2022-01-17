@@ -15,12 +15,26 @@ private:
 	friend class Entity;
 
 public:
-	Component() { m_CmpOwner = nullptr; }
+	Component() { 
+		m_CmpOwner = nullptr;
+		ActivateCMP();
+	}
+
 	virtual ~Component() { }
 
 	virtual void Slot(const float& _elapsed) = 0;
 	virtual void RecibirMsg(Message* _msgType) = 0;
 
+
+
+	bool IsActive() { return isActiveCMP; }
+	void SetActive(bool _isActive) { isActiveCMP = _isActive; }
+	void ActivateCMP() { isActiveCMP = true; }
+	void DesactivateCMP() { isActiveCMP = false; }
+	void FlipActivateCMP() { isActiveCMP = !isActiveCMP; }
+private:
+	bool isActiveCMP = true;
+	
 };
 
 class Entity
@@ -32,6 +46,7 @@ private:
 public:
 	Entity() {
 		SetTag(ETagEntity::Invalid);
+		SetTagIgnore(ETagEntity::Invalid);
 	}
 	~Entity();
 
@@ -81,6 +96,8 @@ public:
 	bool HasTag(ETagEntity _eTag) const { return m_eTag == _eTag; }
 	void SetTag(const ETagEntity& _eTag) { m_eTag = _eTag; }
 	ETagEntity m_eTagIgnore;
+	void SetTagIgnore(const ETagEntity& _ignoreTag) { m_eTagIgnore = _ignoreTag; }
+	ETagEntity GetIgnoreTag(){ return m_eTagIgnore; }
 private:
 	ETagEntity m_eTag;
 

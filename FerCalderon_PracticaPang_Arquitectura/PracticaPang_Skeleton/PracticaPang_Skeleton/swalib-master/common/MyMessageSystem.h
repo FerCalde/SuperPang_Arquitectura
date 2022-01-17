@@ -75,6 +75,8 @@ public:
 		int GetIndex() { return entityListIndex; }
 };
 
+
+
 class EntCollisionMsg : public CollisionMsg
 {
 private:
@@ -91,6 +93,8 @@ public:
 	float GetInvertChangeSpeed() { return invertSpeed; }
 };
 
+
+
 class LimitWorldCollMsg : public CollisionMsg
 {
 private:
@@ -106,15 +110,24 @@ public:
 };
 #pragma endregion
 
-class DamageMsg : public Message
+
+
+class DamageMakeMsg : public Message
 {
 	
 public:
-	DamageMsg(const int& _damage) { SetDamage(_damage); }
+	DamageMakeMsg(const int& _damage = 1) { SetDamage(_damage); }
 	void SetDamage(const int& _damage) { m_damage = _damage; }
 	int GetDamage() { return m_damage; }
 
 private:
 	int m_damage = 1; //Minimun MUST be 1;
+
+};
+
+
+class ActiveStateCMPMsg : public Message //Mensaje que se envia para activar/desactivarCMP
+{
+	ActiveStateCMPMsg(){}
 
 };
