@@ -23,16 +23,18 @@ void LogicManager::InitLogic()
 
 
 	vec2 auxPos(SCR_WIDTH*0.5f,  20);
-	vec2 auxVel(100,0);
-	float auxRadius(16.f);
+	vec2 auxVel(200,0);
+	float auxRadius(20.f);
+
+
 
 	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
 
-	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(25.f);
+	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
 	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texPlayer);
 
-
+	auxNewEntity->FindComponent<CMP_SpawnerEntity>()->SetTimeFireSpawnMax(0.3f);
 
 
 	auxNewEntity->ActivateEntity();
@@ -47,12 +49,12 @@ void LogicManager::InitLogic()
 	auxNewEntity = new Bullet();
 	vec2 auxPos(0,0);
 	vec2 auxVel(0, MAX_BULLET_SPEED);
-	float auxRadius(16.f);
+	float auxRadius(10.f);
 
 
 	auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 	auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
-	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(16.f);
+	auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
 
 	auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texBullet);
 
@@ -77,13 +79,13 @@ void LogicManager::InitLogic()
 
 		vec2 auxPos(CORE_FRand(0.0, SCR_WIDTH), CORE_FRand(SCR_HEIGHT*0.5f, SCR_HEIGHT));
 		vec2 auxVel(vec2(CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10, CORE_FRand(-MAX_BALL_SPEED, +MAX_BALL_SPEED) * 10));
-		float auxRadius(16.f);
+		float auxRadius(20.f);
 
 
 		//auxNewEntity->SendMsg();
 		auxNewEntity->FindComponent<CMP_Transform>()->SetPos(auxPos);
 		auxNewEntity->FindComponent<CMP_Transform>()->SetVel(auxVel);
-		auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(16.f);
+		auxNewEntity->FindComponent<CMP_Collider>()->SetRadius(auxRadius);
 
 		auxNewEntity->FindComponent<CMP_Render>()->SetGfxSprite(texsmallball);
 

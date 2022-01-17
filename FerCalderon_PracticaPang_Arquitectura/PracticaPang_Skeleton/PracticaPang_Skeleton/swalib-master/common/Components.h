@@ -141,6 +141,7 @@ private:
 public:
 	void SpawnBullet(const int& movDir);
 	void SpawnEntity(Entity::ETagEntity _entitySpawn);
+	void SetTimeFireSpawnMax(const float& _timeMax) { m_TimeFireSpawn_MAX = _timeMax; }
 };
 
 class CMP_DamageMaker : public Component

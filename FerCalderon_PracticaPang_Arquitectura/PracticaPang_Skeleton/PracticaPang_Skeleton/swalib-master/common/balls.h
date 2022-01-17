@@ -61,9 +61,11 @@ public:
 		AddComponent(new CMP_Render);
 		AddComponent(new CMP_SpawnerEntity);
 
+
 	}
 
 	virtual ~Player() {};
+
 
 };
 
