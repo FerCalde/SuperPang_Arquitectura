@@ -50,7 +50,7 @@ void CMP_Transform::RecibirMsg(Message* _msgType)
 			SetMoveDir(auxMoveDirMsg->GetNewMoveDir());
 		}
 	}
-	
+
 
 }
 #pragma endregion
@@ -160,12 +160,16 @@ void CMP_Collider::RecibirMsg(Message* _msgType)
 		EntCollisionMsg* auxEntColMsg = dynamic_cast<EntCollisionMsg*>(_msgType);
 		if (auxEntColMsg)
 		{
-			NewVelMsg* auxVelMsg = new NewVelMsg(GetVel() * auxEntColMsg->GetInvertChangeSpeed());
-			m_CmpOwner->SendMsg(auxVelMsg);
+			if (m_CmpOwner->HasTag(Entity::ETagEntity::Enemy))
+			{
+				NewVelMsg* auxVelMsg = new NewVelMsg(GetVel() * auxEntColMsg->GetInvertChangeSpeed());
+				m_CmpOwner->SendMsg(auxVelMsg);
 
-			//Optimizacion
-			delete auxVelMsg;
-			auxVelMsg = nullptr;
+				//Optimizacion
+				delete auxVelMsg;
+				auxVelMsg = nullptr;
+
+			}
 		}
 
 		LimitWorldCollMsg* auxLimitCollMsg = dynamic_cast<LimitWorldCollMsg*>(_msgType);
@@ -182,12 +186,25 @@ void CMP_Collider::RecibirMsg(Message* _msgType)
 			}
 			if ((GetPos().y > auxLimitCollMsg->GetLimitHeight()) || (GetPos().y < 0))
 			{
-				NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x, GetVel().y * -1.0f));
-				m_CmpOwner->SendMsg(auxVelMsg);
+				if (m_CmpOwner->HasTag(Entity::ETagEntity::Enemy))
+				{
 
-				//Optimizacion
-				delete auxVelMsg;
-				auxVelMsg = nullptr;
+					NewVelMsg* auxVelMsg = new NewVelMsg(vec2(GetVel().x, GetVel().y * -1.0f));
+					m_CmpOwner->SendMsg(auxVelMsg);
+
+					//Optimizacion
+					delete auxVelMsg;
+					auxVelMsg = nullptr;
+				}
+				if (m_CmpOwner->HasTag(Entity::ETagEntity::Bullet))
+				{
+					DamageMakeMsg* auxDamageMsg = new DamageMakeMsg();
+					m_CmpOwner->SendMsg(auxDamageMsg);
+
+					delete auxDamageMsg;
+					auxDamageMsg = nullptr;
+				}
+
 			}
 		}
 	}
@@ -505,7 +522,7 @@ void CMP_LifeBase::RecibirMsg(Message* _msgType)
 
 		auxDamageMsg = nullptr;
 	}
-	
+
 	OnActiveEntityMsg* auxOnActiveEntMsg = dynamic_cast<OnActiveEntityMsg*>(_msgType);
 	if (auxOnActiveEntMsg)
 	{
